@@ -2,6 +2,7 @@ from textual.app import App, ComposeResult
 from textual.containers import Horizontal, Vertical
 from textual.widgets import Static, TextLog, Input, Label, ProgressBar, DataTable
 from textual.widget import Widget
+from rich.pretty import Pretty
 from rich.text import Text
 
     
@@ -142,9 +143,10 @@ class RNMApp(App):
         border: solid green;
     }
     """
-    def __init__(self) -> None:
+    def __init__(self, debug=False) -> None:
         super().__init__()
         self.ready = False
+        self.debugg = debug
 
     def compose(self) -> ComposeResult:
         yield Horizontal(
@@ -174,16 +176,19 @@ class RNMApp(App):
         while not self._ready:
             pass
         # Write Red text to stderr
-        self.text_log.write(data)
+        text = Text(data)
+        text.stylize("bold red")
+        self.text_log.write(text)
     
-    # def on_mount(self) -> None:
-    #     self.set_interval(1.0, self.update)
+    def on_mount(self) -> None:
+        if self.debugg:
+            self.set_interval(1.0, self.update)
     
-    # def update(self) -> None:
-    #     self.write_stderr("This is stderr\n")
-    #     self.write_stdout("This is stdout\n")
+    def update(self) -> None:
+        self.write_stdout("This is stdout")
+        self.write_stderr("This is stderr")
 
 
 if __name__ == "__main__":
-    app = RNMApp()
+    app = RNMApp(debug=True)
     app.run()

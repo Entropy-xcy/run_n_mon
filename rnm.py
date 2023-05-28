@@ -4,6 +4,7 @@ import time
 
 from rich.table import Table
 from rich.syntax import Syntax
+from rich.pretty import Pretty
 
 from textual.app import App, ComposeResult
 from textual import events
