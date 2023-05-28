@@ -1,5 +1,6 @@
 import csv
 import io
+import time
 
 from rich.table import Table
 from rich.syntax import Syntax
@@ -8,52 +9,48 @@ from textual.app import App, ComposeResult
 from textual import events
 from textual.widgets import TextLog
 
-from contextlib import redirect_stdout
-
 import sys
 import asyncio
 
+from ui import RNMApp
 
-class TextLogApp(App):
-    def __init__(self):
-        super().__init__()
 
-    def compose(self) -> ComposeResult:
-        yield Table.grid(expand=True)
+app = RNMApp()
+class StdOutWrapper():
+    def __init__(self, app):
+        self.app = app
 
-        # yield TextLog(highlight=True, markup=True)
+    def write(self, data):
+        self.app.write_stdout(data)
     
-    def write(self, s):
-        self.text_log.write(Syntax(s, "python", indent_guides=True))
-    
-    def flush(self):
-        # we need this method to ensure compatibility with certain environments (like Jupyter)
-        pass
-         
-    def on_ready(self) -> None:
-        self.text_log = self.query_one(TextLog)
-
-    def on_key(self, event: events.Key) -> None:
-        """Write Key events to log."""
+    def flush(self) -> None:
         pass
 
+class StdErrWrapper():
+    def __init__(self, app):
+        self.app = app
+
+    def write(self, data):
+        self.app.write_stderr(data)
+    
+    def flush(self) -> None:
+        pass
 
 async def main():
-    app = TextLogApp()
     # run async code
     task = asyncio.create_task(app.run_async())
 
     # wait for the app to be ready
-    await asyncio.sleep(0.1)
+    while not app.ready:
+        await asyncio.sleep(0.1)
 
-    original_stdout = sys.stdout
-    original_stderr = sys.stderr
-    sys.stdout = app
-    sys.stderr = app
+    # redirect stdout and stderr
+    sys.stdout = StdOutWrapper(app)
+    sys.stderr = StdErrWrapper(app)
 
     while True:
-        print("You entered")
-        print("DUMMY Error", file=sys.stderr)
+        print("This is stdout")
+        print("This is stderr", file=sys.stderr)
         await asyncio.sleep(1)
 
     await task

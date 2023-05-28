@@ -142,6 +142,10 @@ class RNMApp(App):
         border: solid green;
     }
     """
+    def __init__(self) -> None:
+        super().__init__()
+        self.ready = False
+
     def compose(self) -> ComposeResult:
         yield Horizontal(
             Vertical(
@@ -157,14 +161,27 @@ class RNMApp(App):
         )
     
     def on_ready(self) -> None:
-        self.text_log = self.query_one(TextLog)
+        self.text_log = self.query_one("#terminal", TextLog)
+        self.ready = True
     
     def write_stdout(self, data: str) -> None:
+        # block until ready
+        while not self._ready:
+            pass
         self.text_log.write(data)
     
     def write_stderr(self, data: str) -> None:
+        while not self._ready:
+            pass
         # Write Red text to stderr
-        self.text_log.write(data, style="bold red")
+        self.text_log.write(data)
+    
+    # def on_mount(self) -> None:
+    #     self.set_interval(1.0, self.update)
+    
+    # def update(self) -> None:
+    #     self.write_stderr("This is stderr\n")
+    #     self.write_stdout("This is stdout\n")
 
 
 if __name__ == "__main__":
