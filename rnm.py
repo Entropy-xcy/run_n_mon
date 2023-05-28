@@ -15,12 +15,13 @@ import asyncio
 
 
 class TextLogApp(App):
-    def __init__(self, stdout=sys.stdout):
+    def __init__(self):
         super().__init__()
-        self.stdout = stdout
 
     def compose(self) -> ComposeResult:
-        yield TextLog(highlight=True, markup=True)
+        yield Table.grid(expand=True)
+
+        # yield TextLog(highlight=True, markup=True)
     
     def write(self, s):
         self.text_log.write(Syntax(s, "python", indent_guides=True))
@@ -29,25 +30,12 @@ class TextLogApp(App):
         # we need this method to ensure compatibility with certain environments (like Jupyter)
         pass
          
-
     def on_ready(self) -> None:
-        """Called  when the DOM is ready."""
         self.text_log = self.query_one(TextLog)
-
-        # text_log.write(Syntax(CODE, "python", indent_guides=True))
-
-        # rows = iter(csv.reader(io.StringIO(CSV)))
-        # table = Table(*next(rows))
-        # for row in rows:
-        #     table.add_row(*row)
-
-        # text_log.write(table)
-        # text_log.write("[bold magenta]Write text or any Rich renderable!")
 
     def on_key(self, event: events.Key) -> None:
         """Write Key events to log."""
-        text_log = self.query_one(TextLog)
-        text_log.write(event)
+        pass
 
 
 async def main():
@@ -57,11 +45,15 @@ async def main():
 
     # wait for the app to be ready
     await asyncio.sleep(0.1)
+
     original_stdout = sys.stdout
+    original_stderr = sys.stderr
     sys.stdout = app
+    sys.stderr = app
 
     while True:
-        print("Hello World")
+        print("You entered")
+        print("DUMMY Error", file=sys.stderr)
         await asyncio.sleep(1)
 
     await task
