@@ -69,6 +69,7 @@ class GPUMonitor:
 
 class HardDriveMonitor:
     def __init__(self, device_name: str) -> None:
+        self.device_name = device_name
         pass
 
     def get_hard_drive_bandwidth(self) -> Tuple[float, float]:
@@ -81,23 +82,6 @@ class HardDriveMonitor:
         pass
 
     def get_hard_drive_smart(self) -> Tuple[float, float]:
-        pass
-
-
-class NetworkMonitor:
-    def __init__(self, if_name: str) -> None:
-        pass
-
-    def get_listen_ports(self) -> List[int]:
-        pass
-
-    def get_network_bandwidth(self) -> Tuple[float, float]:
-        pass
-
-    def get_network_received(self) -> Tuple[float, float]:
-        pass
-
-    def get_network_sent(self) -> Tuple[float, float]:
         pass
 
 
